@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Movie Search App</title>
+<style>
+/* Reset */
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial, sans-serif;}
+
+body{
+background:#f5f5f5;
+color:#222;
+transition:0.3s;
+padding:20px;
+}
+
+.dark{
+background:#121212;
+color:#f5f5f5;
+}
+
+/* Header */
+header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+flex-wrap:wrap;
+margin-bottom:20px;
+}
+
+header h1{
+font-size:24px;
+}
+
+header .controls{
+display:flex;
+gap:10px;
+}
+
+header input{
+padding:10px;
+border-radius:5px;
+border:1px solid #ccc;
+width:200px;
+transition:0.3s;
+}
+
+.dark header input{
+background:#333;
+color:white;
+border:1px solid #555;
+}
+
+header button{
+padding:10px 15px;
+border:none;
+border-radius:5px;
+background:#222;
+color:white;
+cursor:pointer;
+transition:0.3s;
+}
+
+.dark header button{
+background:#555;
+}
+
+/* Movies Grid */
+#movies{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:20px;
+}
+
+/* Movie Card */
+.movie{
+background:white;
+border-radius:10px;
+overflow:hidden;
+box-shadow:0 2px 10px rgba(0,0,0,0.15);
+cursor:pointer;
+transition:0.3s;
+}
+
+.movie:hover{
+transform:scale(1.05);
+}
+
+.dark .movie{
+background:#1e1e1e;
+box-shadow:0 2px 10px rgba(255,255,255,0.1);
+}
+
+.movie img{
+width:100%;
+height:270px;
+object-fit:cover;
+}
+
+.movie-body{
+padding:10px;
+}
+
+.movie-body h3{
+font-size:16px;
+margin-bottom:5px;
+}
+
+.movie-body p{
+font-size:14px;
+color:#555;
+}
+
+.dark .movie-body p{
+color:#ccc;
+}
+
+/* Movie Details Modal */
+#details{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.8);
+display:flex;
+justify-content:center;
+align-items:center;
+opacity:0;
+pointer-events:none;
+transition:0.3s;
+}
+
+#details.active{
+opacity:1;
+pointer-events:auto;
+}
+
+.details-content{
+background:white;
+padding:20px;
+border-radius:10px;
+width:90%;
+max-width:500px;
+position:relative;
+}
+
+.dark .details-content{
+background:#222;
+color:white;
+}
+
+.details-content img{
+width:100%;
+border-radius:5px;
+margin-bottom:10px;
+}
+
+.details-content h2{
+margin-bottom:10px;
+}
+
+.details-content p{
+margin-bottom:5px;
+}
+
+.close-btn{
+position:absolute;
+top:10px;
+right:10px;
+background:#222;
+color:white;
+border:none;
+padding:5px 10px;
+cursor:pointer;
+border-radius:5px;
+}
+
+.dark .close-btn{
+background:#555;
+}
+
+@media(max-width:500px){
+header input{
+width:100%;
+}
+}
+</style>
+</head>
+<body>
+
+<header>
+<h1>Movie Search</h1>
+<div class="controls">
+<input type="text" id="search" placeholder="Search movies...">
+<button id="toggle">🌙 Dark Mode</button>
+</div>
+</header>
+
+<div id="movies"></div>
+
+<!-- Movie Details Modal -->
+<div id="details">
+<div class="details-content">
+<button class="close-btn">Close</button>
+<img id="detail-img" src="">
+<h2 id="detail-title"></h2>
+<p><b>Year:</b> <span id="detail-year"></span></p>
+<p><b>IMDB Rating:</b> <span id="detail-rating"></span></p>
+<p><b>Plot:</b> <span id="detail-plot"></span></p>
+</div>
+</div>
+
+<script>
+const apiKey = "108ed302";
+const searchInput = document.getElementById("search");
+const moviesBox = document.getElementById("movies");
+
+const details = document.getElementById("details");
+const detailImg = document.getElementById("detail-img");
+const detailTitle = document.getElementById("detail-title");
+const detailYear = document.getElementById("detail-year");
+const detailRating = document.getElementById("detail-rating");
+const detailPlot = document.getElementById("detail-plot");
+const closeBtn = document.querySelector(".close-btn");
+
+const toggle = document.getElementById("toggle");
+
+let moviesData = [];
+
+// Fetch movies by search
+async function searchMovies(query){
+if(!query) return;
+let res = await fetch(`https://www.omdbapi.com/?apikey=${apiKey}&s=${query}`);
+let data = await res.json();
+if(data.Search){
+moviesData = data.Search;
+displayMovies(data.Search);
+}else{
+moviesBox.innerHTML="<p>No movies found.</p>";
+}
+}
+
+// Display movie cards
+function displayMovies(movies){
+moviesBox.innerHTML="";
+movies.forEach(movie=>{
+const div = document.createElement("div");
+div.classList.add("movie");
+div.innerHTML=`
+<img src="${movie.Poster !== "N/A" ? movie.Poster : "https://via.placeholder.com/300x450?text=No+Image"}">
+<div class="movie-body">
+<h3>${movie.Title}</h3>
+<p>${movie.Year}</p>
+</div>
+`;
+div.addEventListener("click",()=>showDetails(movie.imdbID));
+moviesBox.appendChild(div);
+});
+}
+
+// Show movie details
+async function showDetails(id){
+let res = await fetch(`https://www.omdbapi.com/?apikey=${apiKey}&i=${id}`);
+let movie = await res.json();
+
+detailImg.src = movie.Poster !== "N/A" ? movie.Poster : "https://via.placeholder.com/300x450?text=No+Image";
+detailTitle.textContent = movie.Title;
+detailYear.textContent = movie.Year;
+detailRating.textContent = movie.imdbRating;
+detailPlot.textContent = movie.Plot;
+
+details.classList.add("active");
+}
+
+// Close modal
+closeBtn.addEventListener("click",()=>{
+details.classList.remove("active");
+});
+
+// Search input
+searchInput.addEventListener("keyup",(e)=>{
+searchMovies(e.target.value);
+});
+
+// Dark mode toggle
+toggle.addEventListener("click",()=>{
+document.body.classList.toggle("dark");
+toggle.textContent = document.body.classList.contains("dark") ? "☀ Light Mode" : "🌙 Dark Mode";
+});
+</script>
+
+</body>
+</html>
