@@ -3,204 +3,143 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Movie Search App</title>
+<title>Movie Hub Modern</title>
 <style>
-/* Reset */
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial, sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Arial',sans-serif;}
+body{background:#f5f5f5;color:#222;transition:0.3s;}
+body.dark{background:#121212;color:#f5f5f5;}
 
-body{
-background:#f5f5f5;
-color:#222;
-transition:0.3s;
-padding:20px;
+/* Navbar */
+nav{
+display:flex;justify-content:space-between;align-items:center;padding:15px 30px;background:linear-gradient(90deg,#1f1c2c,#928dab);
+flex-wrap:wrap;transition:0.3s;
 }
+body.dark nav{
+background:linear-gradient(90deg,#222,#555);
+}
+nav a{color:white;text-decoration:none;margin:0 15px;font-weight:bold;transition:0.3s;}
+nav a:hover{color:#ff004f;}
+nav button{padding:8px 15px;border:none;border-radius:5px;background:#ff004f;color:white;cursor:pointer;transition:0.3s;}
+body.dark nav button{background:#ff0055;}
 
-.dark{
-background:#121212;
-color:#f5f5f5;
-}
-
-/* Header */
-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-flex-wrap:wrap;
-margin-bottom:20px;
-}
-
-header h1{
-font-size:24px;
-}
-
-header .controls{
-display:flex;
-gap:10px;
-}
-
-header input{
-padding:10px;
-border-radius:5px;
-border:1px solid #ccc;
-width:200px;
-transition:0.3s;
-}
-
-.dark header input{
-background:#333;
-color:white;
-border:1px solid #555;
-}
-
-header button{
-padding:10px 15px;
-border:none;
-border-radius:5px;
-background:#222;
-color:white;
-cursor:pointer;
-transition:0.3s;
-}
-
-.dark header button{
-background:#555;
-}
+/* Pages */
+section{display:none;padding:20px;}
+section.active{display:block;}
 
 /* Movies Grid */
-#movies{
+#movies-home,#movies-search{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
 gap:20px;
+padding:20px 0;
 }
 
 /* Movie Card */
 .movie{
-background:white;
-border-radius:10px;
+position:relative;
 overflow:hidden;
-box-shadow:0 2px 10px rgba(0,0,0,0.15);
+border-radius:10px;
 cursor:pointer;
-transition:0.3s;
+transition:transform 0.3s, box-shadow 0.3s;
 }
-
-.movie:hover{
-transform:scale(1.05);
-}
-
-.dark .movie{
-background:#1e1e1e;
-box-shadow:0 2px 10px rgba(255,255,255,0.1);
-}
-
 .movie img{
 width:100%;
 height:270px;
 object-fit:cover;
-}
-
-.movie-body{
-padding:10px;
-}
-
-.movie-body h3{
-font-size:16px;
-margin-bottom:5px;
-}
-
-.movie-body p{
-font-size:14px;
-color:#555;
-}
-
-.dark .movie-body p{
-color:#ccc;
-}
-
-/* Movie Details Modal */
-#details{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,0.8);
-display:flex;
-justify-content:center;
-align-items:center;
-opacity:0;
-pointer-events:none;
-transition:0.3s;
-}
-
-#details.active{
-opacity:1;
-pointer-events:auto;
-}
-
-.details-content{
-background:white;
-padding:20px;
+display:block;
+transition:transform 0.3s;
 border-radius:10px;
-width:90%;
-max-width:500px;
-position:relative;
 }
-
-.dark .details-content{
-background:#222;
-color:white;
+.movie:hover img{
+transform:scale(1.1);
 }
-
-.details-content img{
-width:100%;
-border-radius:5px;
-margin-bottom:10px;
+.movie:hover{
+box-shadow:0 15px 25px rgba(255,0,79,0.5);
+transform:scale(1.05);
 }
-
-.details-content h2{
-margin-bottom:10px;
-}
-
-.details-content p{
-margin-bottom:5px;
-}
-
-.close-btn{
+.movie-title{
 position:absolute;
-top:10px;
-right:10px;
-background:#222;
-color:white;
-border:none;
-padding:5px 10px;
-cursor:pointer;
-border-radius:5px;
-}
-
-.dark .close-btn{
-background:#555;
-}
-
-@media(max-width:500px){
-header input{
+bottom:0;
 width:100%;
+padding:10px;
+background:linear-gradient(transparent,rgba(0,0,0,0.8));
+color:white;
+font-weight:bold;
+font-size:16px;
 }
+body.dark .movie{
+background:#1e1e1e;
+box-shadow:0 2px 10px rgba(255,255,255,0.1);
 }
+
+/* Modal */
+#details{
+position:fixed;top:0;left:0;width:100%;height:100%;
+background:rgba(0,0,0,0.9);
+display:flex;justify-content:center;align-items:center;
+opacity:0;pointer-events:none;
+transition:0.3s;
+z-index:10;
+}
+#details.active{opacity:1;pointer-events:auto;}
+.details-content{
+background:#1b1b1b;padding:20px;border-radius:10px;width:90%;max-width:500px;position:relative;
+color:white;
+}
+body.dark .details-content{background:#222;}
+.details-content img{width:100%;border-radius:10px;margin-bottom:15px;}
+.details-content h2{margin-bottom:10px;font-size:22px;}
+.details-content p{margin-bottom:5px;line-height:1.4;}
+.close-btn{position:absolute;top:10px;right:10px;background:#ff004f;color:white;border:none;padding:5px 10px;border-radius:5px;cursor:pointer;}
+body.dark .close-btn{background:#ff0055;}
+
+/* Search input */
+header{margin-bottom:10px;}
+header input{
+padding:10px;border-radius:5px;border:1px solid #ccc;width:100%;
+max-width:300px;
+}
+body.dark header input{background:#333;color:white;border:1px solid #555;}
+
+/* About page */
+.about p{margin-bottom:10px;line-height:1.5;}
 </style>
 </head>
 <body>
 
-<header>
-<h1>Movie Search</h1>
-<div class="controls">
-<input type="text" id="search" placeholder="Search movies...">
-<button id="toggle">🌙 Dark Mode</button>
+<!-- Navbar -->
+<nav>
+<div>
+<a href="#" onclick="showPage('home')">Home</a>
+<a href="#" onclick="showPage('search')">Search</a>
+<a href="#" onclick="showPage('about')">About</a>
 </div>
+<button id="toggle">🌙 Dark Mode</button>
+</nav>
+
+<!-- Home -->
+<section id="home" class="active">
+<h2>Trending Movies</h2>
+<div id="movies-home"></div>
+</section>
+
+<!-- Search -->
+<section id="search">
+<header>
+<input type="text" id="searchInput" placeholder="Search movies...">
 </header>
+<div id="movies-search"></div>
+</section>
 
-<div id="movies"></div>
+<!-- About -->
+<section id="about" class="about">
+<h2>About Movie Hub</h2>
+<p>This is a modern movie website using OMDb API. You can search for any movie, see its rating, year, and plot.</p>
+<p>Dark/light mode supported with responsive design and hover animations for movie cards.</p>
+<p>Movies appear as film posters with gradient overlay for titles.</p>
+</section>
 
-<!-- Movie Details Modal -->
+<!-- Details Modal -->
 <div id="details">
 <div class="details-content">
 <button class="close-btn">Close</button>
@@ -214,9 +153,21 @@ width:100%;
 
 <script>
 const apiKey = "108ed302";
-const searchInput = document.getElementById("search");
-const moviesBox = document.getElementById("movies");
 
+// Page switching
+function showPage(pageId){
+document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+document.getElementById(pageId).classList.add('active');
+}
+
+// Dark mode toggle
+const toggle = document.getElementById("toggle");
+toggle.addEventListener("click",()=>{
+document.body.classList.toggle("dark");
+toggle.textContent = document.body.classList.contains("dark") ? "☀ Light Mode" : "🌙 Dark Mode";
+});
+
+// Modal
 const details = document.getElementById("details");
 const detailImg = document.getElementById("detail-img");
 const detailTitle = document.getElementById("detail-title");
@@ -224,72 +175,53 @@ const detailYear = document.getElementById("detail-year");
 const detailRating = document.getElementById("detail-rating");
 const detailPlot = document.getElementById("detail-plot");
 const closeBtn = document.querySelector(".close-btn");
+closeBtn.addEventListener("click",()=>{details.classList.remove("active");});
 
-const toggle = document.getElementById("toggle");
+// Load trending movies
+async function loadTrending(){
+let res = await fetch(`https://www.omdbapi.com/?apikey=${apiKey}&s=avengers`);
+let data = await res.json();
+if(data.Search) displayMovies(data.Search,'movies-home');
+}
+loadTrending();
 
-let moviesData = [];
-
-// Fetch movies by search
+// Search movies
+const searchInput = document.getElementById("searchInput");
+searchInput.addEventListener("keyup",()=>searchMovies(searchInput.value));
 async function searchMovies(query){
 if(!query) return;
 let res = await fetch(`https://www.omdbapi.com/?apikey=${apiKey}&s=${query}`);
 let data = await res.json();
-if(data.Search){
-moviesData = data.Search;
-displayMovies(data.Search);
-}else{
-moviesBox.innerHTML="<p>No movies found.</p>";
-}
+if(data.Search) displayMovies(data.Search,'movies-search');
+else document.getElementById('movies-search').innerHTML="<p>No movies found.</p>";
 }
 
-// Display movie cards
-function displayMovies(movies){
-moviesBox.innerHTML="";
+// Display movies
+function displayMovies(movies,containerId){
+const container = document.getElementById(containerId);
+container.innerHTML="";
 movies.forEach(movie=>{
 const div = document.createElement("div");
 div.classList.add("movie");
 div.innerHTML=`
-<img src="${movie.Poster !== "N/A" ? movie.Poster : "https://via.placeholder.com/300x450?text=No+Image"}">
-<div class="movie-body">
-<h3>${movie.Title}</h3>
-<p>${movie.Year}</p>
-</div>
-`;
+<img src="${movie.Poster!=="N/A"?movie.Poster:"https://via.placeholder.com/300x450?text=No+Image"}">
+<div class="movie-title">${movie.Title}</div>`;
 div.addEventListener("click",()=>showDetails(movie.imdbID));
-moviesBox.appendChild(div);
+container.appendChild(div);
 });
 }
 
-// Show movie details
+// Show details
 async function showDetails(id){
 let res = await fetch(`https://www.omdbapi.com/?apikey=${apiKey}&i=${id}`);
 let movie = await res.json();
-
-detailImg.src = movie.Poster !== "N/A" ? movie.Poster : "https://via.placeholder.com/300x450?text=No+Image";
+detailImg.src = movie.Poster!=="N/A"?movie.Poster:"https://via.placeholder.com/300x450?text=No+Image";
 detailTitle.textContent = movie.Title;
 detailYear.textContent = movie.Year;
 detailRating.textContent = movie.imdbRating;
 detailPlot.textContent = movie.Plot;
-
 details.classList.add("active");
 }
-
-// Close modal
-closeBtn.addEventListener("click",()=>{
-details.classList.remove("active");
-});
-
-// Search input
-searchInput.addEventListener("keyup",(e)=>{
-searchMovies(e.target.value);
-});
-
-// Dark mode toggle
-toggle.addEventListener("click",()=>{
-document.body.classList.toggle("dark");
-toggle.textContent = document.body.classList.contains("dark") ? "☀ Light Mode" : "🌙 Dark Mode";
-});
 </script>
-
 </body>
 </html>
